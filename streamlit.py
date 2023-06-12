@@ -1,35 +1,112 @@
 import streamlit as st
+#import matplotlib.pyplot as plt
 import requests
+import pandas as pd
+import altair as alt
+import datetime
+from io import StringIO
 
-API_URL = 'http://localhost:8000/api/'  # Replace with your API URL
+st.set_page_config(layout="wide")
 
-def register_user(username, password, email):
-    response = requests.post(API_URL + 'register/', data={'username': username, 'password': password, 'email': email})
-    return response.json()
+local_host = 'http://localhost:8000/'
 
-def login_user(username, password):
-    response = requests.post(API_URL + 'login/', data={'username': username, 'password': password})
-    return response.json()
+session_state = st.session_state
 
-def logout_user():
-    response = requests.get(API_URL + 'logout/')
-    return response.json()
+def get_jwt_token(username, password):
+    
+    url = local_host + 'api/token/'
+    data = {
+        'username': username,
+        'password': password
+    }
 
-def main():
-    st.title("Django Authentication with Streamlit")
-    st.write("Welcome to the Django Authentication with Streamlit app!")
+    response = requests.post(url, data=data)
 
-    # Registration
-    st.subheader("Register")
-    reg_username = st.text_input("Username:")
-    reg_password = st.text_input("Password:", type="password")
-    reg_email = st.text_input("Email:")
-    if st.button("Register"):
-        response = register_user(reg_username, reg_password, reg_email)
-        if 'error' in response:
-            st.error(response['error'])
+    if response.status_code == 200:
+        token = response.json()
+        access_token = token['access']
+        return access_token
+    else:
+        return None
+    
+
+def get_data(token):
+    url = local_host + 'data/'
+    headers = {'Authorization': f'Bearer {token}'}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return token
+    else:
+        return None
+
+if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
+    
+    st.markdown("<h1 style='text-align: center; '>LOGIN</h1> <br>", unsafe_allow_html=True)
+    col1,col2,col3 = st.columns(3)
+    with col1:
+        st.write("")
+    with col2:
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        col1, col2 ,col3= st.columns(3)
+        with col2:
+            login_button = st.button("Login")
+
+    if login_button:
+        token = get_jwt_token(username, password)
+        
+        if token:
+            data = get_data(token)
+            
+            if data:
+                st.session_state['logged_in'] = True
+                st.session_state['token'] = token
+                st.experimental_rerun()
+            else:
+                 st.write("You do not have permission to access the next page")
+
         else:
-            st.success(response['success'])
-        st.text_input("")
+            st.error("Invalid username or password.")
+if 'logged_in' in st.session_state and st.session_state['logged_in']:
 
-    #
+    token=st.session_state['token']    
+    st.markdown("<h1 style='text-align: center; '>TODO application</h1> <br>", unsafe_allow_html=True)
+
+    def Main():
+        st.title("TODO APP LIST WITH STREAMLIT")
+
+        menu = ["Create","Read","Update","Delete","About"]
+        choice = st.sidebar.selectbox("MENU",menu)
+
+        if choice == "Create":
+            st.subheader("Add Items")
+
+            col1,col2 = st.columns(2)
+
+            with col1:
+                task = st.text_area("Task to do")
+
+            with col2:
+                task_status = st.selectbox("Status",["Todo","doing","done"])
+                task_due_date = st.date_input("Due Date")
+            if task_status=="done":
+
+               file=st.file_uploader("please choose a file")
+
+
+
+            if st.button("Add Task"):
+                st.success(f"Successfully added data :{task}")
+
+        if choice=="Read":
+            st.header("view tasks")
+            get_method=requests.get("http://127.0.0.1:8000/History")
+            st.write(get_method)
+
+
+
+
+    if __name__=="__main__":
+        Main()
+
+
