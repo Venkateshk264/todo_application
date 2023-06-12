@@ -1,0 +1,42 @@
+
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.swp
+
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+
+# Media
+media/
+
+# Static files
+staticfiles/
+/static/
+
+# Virtual environment
+venv/
+env
+
+# IDE
+.vscode/
+*.code-workspace
+
+# Dependency management
+pip-log.txt
+
+# Django Rest Framework (DRF)
+rest_framework/api_settings.py
+rest_framework/migrations/
+
+# Streamlit
+streamlit/*.pyc
+streamlit/*.pyo
+streamlit/__pycache__/
