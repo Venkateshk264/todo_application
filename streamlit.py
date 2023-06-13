@@ -38,6 +38,36 @@ def get_data(token):
         return token
     else:
         return None
+base_url=local_host+ 'analytics/'
+def get_history():
+    response=requests.get(base_url)
+    if response.status_code==200:
+        return response.json()
+    else:
+        return []
+def create_task(data):
+    response=requests.post(base_url,data=data)
+    if response.status_code==200:
+        return response.json()
+    else:
+       return None
+
+
+def update_student(id, data):
+    url = f"{base_url}{id}/"
+    response = requests.patch(url, data=data)
+    if response.status_code == 200:
+        return response.json()
+    else:
+       return "data not updated"
+
+
+def delete_student(id):
+    url = f"{base_url}{id}/"
+    response = requests.delete(url)
+    if response.status_code == 200:
+        return True
+    return False
 
 if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
     
@@ -84,24 +114,59 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
             col1,col2 = st.columns(2)
 
             with col1:
-                task = st.text_area("Task to do")
+                task_title= st.text_area("Task to do")
 
             with col2:
                 task_status = st.selectbox("Status",["Todo","doing","done"])
-                task_due_date = st.date_input("Due Date")
+               # due_date = st.date_input("Due Date")
             if task_status=="done":
+                
+                
 
-               file=st.file_uploader("please choose a file")
+                file=st.file_uploader("please choose a file")
 
 
-
+            data={"task_title":task_title,"task_status":task_status}
             if st.button("Add Task"):
-                st.success(f"Successfully added data :{task}")
+                result=create_task(data)
+                if result:
+                    st.success("successfully posted")
+                
 
-        if choice=="Read":
+
+                st.success(f"Successfully added data :{task_title}")
+
+        elif choice =="Read":
             st.header("view tasks")
-            get_method=requests.get("http://127.0.0.1:8000/History")
-            st.write(get_method)
+            hist=get_history()
+            data_to_view=pd.DataFrame(hist)
+            
+            st.write(data_to_view)
+            
+
+        elif choice == "Update":
+            st.header("EDIT/UPDATE ITEMS")
+            update_id=st.text_input("id")
+            update_task_title=st.text_input("task_title")
+            update_status=st.selectbox("status",["Todo","doing","done"])
+            datas={"task_title":update_task_title,"task_status":update_status}
+            if st.button("update task"):
+                Id=int(update_id)
+                hist=update_student(Id,datas)
+                st.write(hist)
+
+
+        elif choice == "Delete":
+            st.header("delete")
+            del_id=st.text_input("id")
+            
+            if st.button("delete"):
+                Id=int(del_id)
+                hist=delete_student(Id)
+                st.write(hist)
+
+        else:
+            st.subheader("About")
 
 
 
