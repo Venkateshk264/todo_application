@@ -105,10 +105,12 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
     def Main():
         st.title("TODO APP LIST WITH STREAMLIT")
 
-        menu = ["Create","Read","Update","Delete","About"]
-        choice = st.sidebar.selectbox("MENU",menu)
-
-        if choice == "Create":
+       # menu = ["Create","Read","Update","Delete","About"]
+        #choice = st.sidebar.selectbox("MENU",menu)
+        #choice = st.tabs.select("Menu",menu)
+        tab1,tab2,tab3,tab4= st.tabs(["Create","Read","Update","Delete"])
+        with tab1:
+        #if choice == "Create":
             st.subheader("Add Items")
 
             col1,col2 = st.columns(2)
@@ -136,15 +138,16 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
 
                 st.success(f"Successfully added data :{task_title}")
 
-        elif choice =="Read":
+        with tab2:
+        #elif choice =="Read":
             st.header("view tasks")
             hist=get_history()
             data_to_view=pd.DataFrame(hist)
             
             st.write(data_to_view)
             
-
-        elif choice == "Update":
+        with tab3:
+        #elif choice == "Update":
             st.header("EDIT/UPDATE ITEMS")
             update_id=st.text_input("id")
             update_task_title=st.text_input("task_title")
@@ -155,18 +158,18 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
                 hist=update_student(Id,datas)
                 st.write(hist)
 
-
-        elif choice == "Delete":
+        with tab4:
+        #elif choice == "Delete":
             st.header("delete")
-            del_id=st.text_input("id")
+            del_id=st.text_input("Id")
             
             if st.button("delete"):
                 Id=int(del_id)
                 hist=delete_student(Id)
                 st.write(hist)
 
-        else:
-            st.subheader("About")
+        # else:
+        #     st.subheader("About")
 
 
 
