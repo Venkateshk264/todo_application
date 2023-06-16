@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Task,Employee
+from .models import ToDo
 # Register your models here.
 # @admin.register(Task)
 # class TaskAdmin(admin.ModelAdmin):
@@ -8,6 +8,6 @@ from .models import Task,Employee
 #    # list_filter = ('task_status')
 #     search_fields = ('task_title',)
 
-admin.site.register(Employee)
-admin.site.register(Task)
+#admin.site.register(Employee)
+admin.site.register(ToDo)
 

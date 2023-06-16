@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "todo",
     "rest_framework",
     "rest_framework_simplejwt",
+    "stream"
+    
 ]
 
 MIDDLEWARE = [
@@ -134,6 +136,12 @@ REST_FRAMEWORK = {
     )
     
 }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
 JWT_AUTH = {
     'JWT_SECRET_KEY': 'your-secret-key',
     'JWT_ALGORITHM': 'HS256',
@@ -144,3 +152,9 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+MEDIA_ROOT = BASE_DIR /"media"
+
+MEDIA_URL = "/media/"
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'

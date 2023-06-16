@@ -1,12 +1,15 @@
 import streamlit as st
-#import matplotlib.pyplot as plt
 import requests
-import pandas as pd
-import altair as alt
 import datetime
-from io import StringIO
+from datetime import datetime
+import pandas as pd
+from streamlit_option_menu import option_menu
+from django.core.serializers import serialize
+from django.http import HttpResponse
+from streamlit_modal import Modal
 
-st.set_page_config(layout="wide")
+
+st.set_page_config(layout="wide",initial_sidebar_state="expanded",)
 
 local_host = 'http://localhost:8000/'
 
@@ -38,36 +41,10 @@ def get_data(token):
         return token
     else:
         return None
-base_url=local_host+ 'analytics/'
-def get_history():
-    response=requests.get(base_url)
-    if response.status_code==200:
-        return response.json()
-    else:
-        return []
-def create_task(data):
-    response=requests.post(base_url,data=data)
-    if response.status_code==200:
-        return response.json()
-    else:
-       return None
+    
+    
 
 
-def update_student(id, data):
-    url = f"{base_url}{id}/"
-    response = requests.patch(url, data=data)
-    if response.status_code == 200:
-        return response.json()
-    else:
-       return "data not updated"
-
-
-def delete_student(id):
-    url = f"{base_url}{id}/"
-    response = requests.delete(url)
-    if response.status_code == 200:
-        return True
-    return False
 
 if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
     
@@ -91,90 +68,184 @@ if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
             if data:
                 st.session_state['logged_in'] = True
                 st.session_state['token'] = token
+                st.session_state['username'] = username
                 st.experimental_rerun()
             else:
                  st.write("You do not have permission to access the next page")
 
         else:
             st.error("Invalid username or password.")
+            
+    
+
 if 'logged_in' in st.session_state and st.session_state['logged_in']:
+    # st.markdown(
+    #      f"""
+    #      <style>
+    #      .stApp {{
+    #          background-image: url("https://www.odiaweb.in/wallpaper/wp-content/uploads/sites/16/2023/01/desktop-wallpaper......jpg");
+    #          background-attachment: fixed;
+    #          background-size: cover
+    #      }}
+    #      </style>
+    #      """,
+    #      unsafe_allow_html=True
+    #  )
 
-    token=st.session_state['token']    
-    st.markdown("<h1 style='text-align: center; '>TODO application</h1> <br>", unsafe_allow_html=True)
-
-    def Main():
-        st.title("TODO APP LIST WITH STREAMLIT")
-
-       # menu = ["Create","Read","Update","Delete","About"]
-        #choice = st.sidebar.selectbox("MENU",menu)
-        #choice = st.tabs.select("Menu",menu)
-        tab1,tab2,tab3,tab4= st.tabs(["Create","Read","Update","Delete"])
-        with tab1:
-        #if choice == "Create":
-            st.subheader("Add Items")
-
-            col1,col2 = st.columns(2)
-
-            with col1:
-                task_title= st.text_area("Task to do")
-
-            with col2:
-                task_status = st.selectbox("Status",["Todo","doing","done"])
-               # due_date = st.date_input("Due Date")
-            if task_status=="done":
+    token = st.session_state['token']  
+    UserName = st.session_state['username']
+    col1,col2 = st.columns([8,2])
+    with col1:
+        selected = option_menu(
+            menu_title="",
+            options=["Todo","History",],
+            icons=["card-checklist","journal-text"],
+            menu_icon="cast",
+            default_index=0,
+            orientation="horizontal",
+        )
+    
+            
+        if selected == "Todo":
+            
+            a,b = st.columns([3,7])
+            with a:
+                with st.form(key="form",clear_on_submit=True):
+                # if 'session_state' not in st.session_state:
+                #     st.session_state['session_state'] = {'task': ''}
+                    task = st.text_input("Tasks",key='task')#,value=st.session_state['session_state']['task']
+                    
+                    # if 'session_state' in st.session_state:
+                    #         st.session_state['session_state'] = {'task': task}
+                    # else:
+                    #     st.session_state['session_state'] = {'task': ''}
+                    
+                    add = st.form_submit_button("ADD")    
+                
+            with b:
+                if task:
+                    if add:
+                        st.session_state['session_state'] = {'task': ''}
+                        url = local_host + "todo/?type=create"
+                        headers = {'Authorization': f'Bearer {token}'}
+                        params={
+                            "userName":UserName,
+                            "task":task,
+                            "discription":"",
+                            "status":"Pending",
+                        }        
+                        response = requests.get(url,headers=headers,params=params)
+                        if response.status_code == 200: 
+                            pass
+                        else:
+                            st.error("You dont have permission to create the task")
+                        
+                params={
+                            "userName":UserName,
+                        }     
+                
+                url = local_host + "todo/?type=read"
+                headers = {'Authorization': f'Bearer {token}'}
+                response = requests.get(url,headers=headers,params=params)
+                if response.status_code == 200:
+                    data = response.json()
+                    task = data['task']
+                    modal = Modal(key="key",title="update")  
+                    for i in range(len(task)):
+                        tasks = st.checkbox(task[i],key=task[i])
+                        if tasks:
+                            with modal.container():
+                                with st.form(key="forms",clear_on_submit=True):
+                                    description = st.text_area("Description")
+                                    file=st.file_uploader("please choose a file")
+                                    submit = st.form_submit_button("submit")
+                                    if description:
+                                        if submit :
+                                                url = local_host + "todo/?type=uploadfile"
+                                                headers = {'Authorization': f'Bearer {token}'}
+                                                params = {
+                                                    "userName":UserName,
+                                                    "description":description,
+                                                    "status":"Completed",
+                                                    "task":task[i],
+                                                }
+                                                files = {
+                                                    'file': file
+                                                }
+                                                st.success("Submited successfully")
+                                                response = requests.post(url,headers=headers,params=params,files=files)
+                                                if response.status_code == 200:
+                                                    st.success("WOW")
+                                                else:
+                                                    st.error("ERROR")
                 
                 
-
-                file=st.file_uploader("please choose a file")
-
-
-            data={"task_title":task_title,"task_status":task_status}
-            if st.button("Add Task"):
-                result=create_task(data)
-                if result:
-                    st.success("successfully posted")
+                else:
+                    st.error(f'Error: {response.status_code}')
+                    
+            
                 
-
-
-                st.success(f"Successfully added data :{task_title}")
-
-        with tab2:
-        #elif choice =="Read":
-            st.header("view tasks")
-            hist=get_history()
-            data_to_view=pd.DataFrame(hist)
+        if selected == "History":
+            params={
+                    "userName":UserName,
+                }     
             
-            st.write(data_to_view)
+            url = local_host + "todo/?type=history"
+            headers = {'Authorization': f'Bearer {token}'}
+            response = requests.get(url,headers=headers,params=params)
             
-        with tab3:
-        #elif choice == "Update":
-            st.header("EDIT/UPDATE ITEMS")
-            update_id=st.text_input("id")
-            update_task_title=st.text_input("task_title")
-            update_status=st.selectbox("status",["Todo","doing","done"])
-            datas={"task_title":update_task_title,"task_status":update_status}
-            if st.button("update task"):
-                Id=int(update_id)
-                hist=update_student(Id,datas)
-                st.write(hist)
+                        
+            if response.status_code == 200:
+                data = response.json()
+                tasks = data['tasks']
+                files = data['files']
+                description = data['description']
 
-        with tab4:
-        #elif choice == "Delete":
-            st.header("delete")
-            del_id=st.text_input("Id")
+                # Display the data in Streamlit
+                st.header("Completed Tasks")
+                for i in range(len(tasks)):
+                    details = st.button(f'{i+1}.{tasks[i]}')
+                    # Apply CSS styles to hide the button structure
+                    button_style = """
+                        <style>
+                        .stButton>button {
+                            background: none;
+                            border: none;
+                            padding: 0;
+                            margin: 0;
+                            font-size: inherit;
+                            font-family: inherit;
+                            cursor: pointer;
+                            outline: inherit;
+                        }
+                        </style>
+                    """
+
+                    # Display the CSS styles
+                    st.markdown(button_style, unsafe_allow_html=True)
+                    if details:
+                        st.write("Description:", description[i])
+                        file_path = files[i]
+                        try:
+                            with open(file_path, "r") as file:
+                                file_contents = file.read()
+                                st.write("File data:")
+                                st.code(file_contents)
+                        except FileNotFoundError:
+                            st.error("File not found. Please enter a valid file path.")
+
+                        
+            else:
+                st.error("Failed to fetch data from the backend")
+
             
-            if st.button("delete"):
-                Id=int(del_id)
-                hist=delete_student(Id)
-                st.write(hist)
+            
+    with col2:
+        a,b = st.columns([4,6])
+        with b:
+            image = "/home/venkatesh/Downloads/pexels-pixabay-220453.jpg"
+            st.image(image, caption=UserName, width=160)
+        
 
-        # else:
-        #     st.subheader("About")
-
-
-
-
-    if __name__=="__main__":
-        Main()
 
 
