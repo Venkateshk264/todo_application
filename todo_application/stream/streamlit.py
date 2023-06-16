@@ -243,7 +243,7 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
     with col2:
         a,b = st.columns([4,6])
         with b:
-            image = "/home/venkatesh/Downloads/pexels-pixabay-220453.jpg"
+            image = "/home/venkatesh/todo_application/todo_application/images/profile_photo.jpg"
             st.image(image, caption=UserName, width=160)
         
 
