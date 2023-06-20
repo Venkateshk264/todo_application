@@ -10,6 +10,18 @@ from streamlit_modal import Modal
 
 
 st.set_page_config(layout="wide",initial_sidebar_state="expanded",)
+st.markdown(
+         f"""
+         <style>
+         .stApp {{
+             background-image: url("https://cdn.pixabay.com/photo/2019/04/24/11/27/flowers-4151900_960_720.jpg");
+             background-attachment: fixed;
+             background-size: cover
+         }}
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
 
 local_host = 'http://localhost:8000/'
 
@@ -83,7 +95,7 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
          f"""
          <style>
          .stApp {{
-             background-image: url("https://www.odiaweb.in/wallpaper/wp-content/uploads/sites/16/2023/01/desktop-wallpaper......jpg");
+             background-image: url("https://cdn.pixabay.com/photo/2019/04/24/11/27/flowers-4151900_960_720.jpg");
              background-attachment: fixed;
              background-size: cover
          }}
