@@ -79,18 +79,18 @@ if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
     
 
 if 'logged_in' in st.session_state and st.session_state['logged_in']:
-    # st.markdown(
-    #      f"""
-    #      <style>
-    #      .stApp {{
-    #          background-image: url("https://www.odiaweb.in/wallpaper/wp-content/uploads/sites/16/2023/01/desktop-wallpaper......jpg");
-    #          background-attachment: fixed;
-    #          background-size: cover
-    #      }}
-    #      </style>
-    #      """,
-    #      unsafe_allow_html=True
-    #  )
+    st.markdown(
+         f"""
+         <style>
+         .stApp {{
+             background-image: url("https://www.odiaweb.in/wallpaper/wp-content/uploads/sites/16/2023/01/desktop-wallpaper......jpg");
+             background-attachment: fixed;
+             background-size: cover
+         }}
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
 
     token = st.session_state['token']  
     UserName = st.session_state['username']
