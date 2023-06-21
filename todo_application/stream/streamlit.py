@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from streamlit_modal import Modal
 
 
+
 st.set_page_config(layout="wide",initial_sidebar_state="expanded",)
 st.markdown(
          f"""
@@ -103,6 +104,7 @@ if 'logged_in' in st.session_state and st.session_state['logged_in']:
          """,
          unsafe_allow_html=True
      )
+    # request.session.modified=True
 
     token = st.session_state['token']  
     UserName = st.session_state['username']

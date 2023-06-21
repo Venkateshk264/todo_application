@@ -158,3 +158,12 @@ MEDIA_ROOT = BASE_DIR /"media"
 MEDIA_URL = "/media/"
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+SESSION_COOKIE_AGE=50

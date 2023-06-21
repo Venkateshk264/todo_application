@@ -41,3 +41,6 @@ rest_framework/migrations/
 streamlit/*.pyc
 streamlit/*.pyo
 streamlit/__pycache__/
+
+
+requirements.txt

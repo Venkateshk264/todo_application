@@ -89,6 +89,7 @@ def upload_file(request,userName,task,description,status,uploaded_file):
 class Todo(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
+    
     def get(self,request,*args,**kwargs):
         try:
             response ={"WOW":"wow - 1"}
@@ -146,6 +147,7 @@ class DataView(APIView):
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
             user_id = payload['user_id']
             data = {"Userid":user_id}
+            request.session['username']=data
             return Response(data)
         except Exception as e:
             return Response({'error': str(e)}, status=401)
