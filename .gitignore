@@ -43,4 +43,4 @@ streamlit/*.pyo
 streamlit/__pycache__/
 
 
-requirements.txt
+# requirements.txt
